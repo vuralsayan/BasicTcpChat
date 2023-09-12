@@ -33,15 +33,16 @@
             BtnConnect = new System.Windows.Forms.Button();
             TxtInfo = new System.Windows.Forms.TextBox();
             TxtMessage = new System.Windows.Forms.TextBox();
-            label2 = new System.Windows.Forms.Label();
             BtnSend = new System.Windows.Forms.Button();
+            LstCllientIP = new System.Windows.Forms.ListBox();
+            button1 = new System.Windows.Forms.Button();
             SuspendLayout();
             // 
             // label1
             // 
             label1.AutoSize = true;
             label1.Font = new System.Drawing.Font("Segoe UI Semibold", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            label1.Location = new System.Drawing.Point(28, 16);
+            label1.Location = new System.Drawing.Point(239, 16);
             label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             label1.Name = "label1";
             label1.Size = new System.Drawing.Size(83, 30);
@@ -50,7 +51,7 @@
             // 
             // TxtIP
             // 
-            TxtIP.Location = new System.Drawing.Point(102, 13);
+            TxtIP.Location = new System.Drawing.Point(313, 13);
             TxtIP.Margin = new System.Windows.Forms.Padding(4);
             TxtIP.Name = "TxtIP";
             TxtIP.Size = new System.Drawing.Size(736, 36);
@@ -58,7 +59,7 @@
             // 
             // BtnConnect
             // 
-            BtnConnect.Location = new System.Drawing.Point(687, 441);
+            BtnConnect.Location = new System.Drawing.Point(897, 456);
             BtnConnect.Margin = new System.Windows.Forms.Padding(4);
             BtnConnect.Name = "BtnConnect";
             BtnConnect.Size = new System.Drawing.Size(152, 50);
@@ -69,37 +70,26 @@
             // 
             // TxtInfo
             // 
-            TxtInfo.Location = new System.Drawing.Point(102, 54);
+            TxtInfo.Location = new System.Drawing.Point(313, 54);
             TxtInfo.Margin = new System.Windows.Forms.Padding(4);
             TxtInfo.Multiline = true;
             TxtInfo.Name = "TxtInfo";
             TxtInfo.ReadOnly = true;
             TxtInfo.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            TxtInfo.Size = new System.Drawing.Size(736, 335);
+            TxtInfo.Size = new System.Drawing.Size(736, 350);
             TxtInfo.TabIndex = 3;
             // 
             // TxtMessage
             // 
-            TxtMessage.Location = new System.Drawing.Point(102, 400);
+            TxtMessage.Location = new System.Drawing.Point(313, 412);
             TxtMessage.Margin = new System.Windows.Forms.Padding(4);
             TxtMessage.Name = "TxtMessage";
             TxtMessage.Size = new System.Drawing.Size(736, 36);
             TxtMessage.TabIndex = 5;
             // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Font = new System.Drawing.Font("Segoe UI Semibold", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            label2.Location = new System.Drawing.Point(10, 403);
-            label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            label2.Name = "label2";
-            label2.Size = new System.Drawing.Size(104, 30);
-            label2.TabIndex = 4;
-            label2.Text = "Message:";
-            // 
             // BtnSend
             // 
-            BtnSend.Location = new System.Drawing.Point(527, 441);
+            BtnSend.Location = new System.Drawing.Point(737, 456);
             BtnSend.Margin = new System.Windows.Forms.Padding(4);
             BtnSend.Name = "BtnSend";
             BtnSend.Size = new System.Drawing.Size(152, 50);
@@ -108,14 +98,33 @@
             BtnSend.UseVisualStyleBackColor = true;
             BtnSend.Click += BtnSend_Click;
             // 
+            // LstCllientIP
+            // 
+            LstCllientIP.FormattingEnabled = true;
+            LstCllientIP.ItemHeight = 30;
+            LstCllientIP.Location = new System.Drawing.Point(12, 54);
+            LstCllientIP.Name = "LstCllientIP";
+            LstCllientIP.Size = new System.Drawing.Size(294, 394);
+            LstCllientIP.TabIndex = 7;
+            // 
+            // button1
+            // 
+            button1.Location = new System.Drawing.Point(12, 454);
+            button1.Name = "button1";
+            button1.Size = new System.Drawing.Size(294, 42);
+            button1.TabIndex = 8;
+            button1.Text = "Private Chat";
+            button1.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(12F, 30F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(901, 505);
+            ClientSize = new System.Drawing.Size(1071, 525);
+            Controls.Add(button1);
+            Controls.Add(LstCllientIP);
             Controls.Add(BtnSend);
             Controls.Add(TxtMessage);
-            Controls.Add(label2);
             Controls.Add(TxtInfo);
             Controls.Add(BtnConnect);
             Controls.Add(TxtIP);
@@ -138,7 +147,8 @@
         private System.Windows.Forms.Button BtnConnect;
         private System.Windows.Forms.TextBox TxtInfo;
         private System.Windows.Forms.TextBox TxtMessage;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button BtnSend;
+        private System.Windows.Forms.ListBox LstCllientIP;
+        private System.Windows.Forms.Button button1;
     }
 }

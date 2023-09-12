@@ -18,9 +18,16 @@ namespace TCPServer
             InitializeComponent();
         }
 
+
         SimpleTcpServer server = new SimpleTcpServer("0.0.0.0", 7777);
-        Dictionary<string, SimpleTcpClient> connectedClients = new Dictionary<string, SimpleTcpClient>();
+        private List<ClientInfo> connectedClients = new List<ClientInfo>();
+
         public string username;
+
+        public class ClientInfo  // Diğer istemci bilgileri buraya eklenebilir
+        {
+            public string IpPort { get; set; }
+        }
 
         private void BtnStart_Click(object sender, EventArgs e)
         {
@@ -43,41 +50,80 @@ namespace TCPServer
         {
             this.Invoke((MethodInvoker)delegate
             {
-                TxtInfo.Text += $"{e.IpPort}: {Encoding.UTF8.GetString(e.Data)} {Environment.NewLine}";
+                // Serverdan gelen mesajı chat penceresine ekleyin
+                string message = $"{e.IpPort}: {Encoding.UTF8.GetString(e.Data)} {Environment.NewLine}";
+
+                // Kendi mesajınızı gönderdiyseniz, göndermeyin
+                if (!IsMessageFromMe(message))
+                {
+                    TxtInfo.Text += message;
+
+                    // Serverdan gelen mesajı tüm clientlere gönderin
+                    foreach (var client in connectedClients)
+                    {
+                        // İlgili client'ın bağlı olduğunu doğrulayın
+                        if (client.IpPort != e.IpPort)
+                        {
+                            server.Send(client.IpPort, message);
+                        }
+                    }
+                }
             });
-
-            foreach (var client in connectedClients)
-            {
-                server.Send(client.Key, $"{e.IpPort}: {Encoding.UTF8.GetString(e.Data)}");
-            }
-
         }
+
+        private bool IsMessageFromMe(string message)
+        {
+            // Mesajın "Me:" ile başlayıp başlamadığını kontrol ederek, kendi mesajınızı tespit edin
+            return message.StartsWith("Me:");
+        }
+
 
         private void Events_ClientDisconnected(object? sender, ConnectionEventArgs e)
         {
             this.Invoke((MethodInvoker)delegate
             {
                 TxtInfo.Text += $"{e.IpPort} disconnected. {Environment.NewLine}";
-                LstClientIP.Items.Remove(e.IpPort);
 
+                // Bağlantı kesilen istemciyi listeden kaldırın
+                var disconnectedClient = connectedClients.FirstOrDefault(client => client.IpPort == e.IpPort);
+                if (disconnectedClient != null)
+                {
+                    connectedClients.Remove(disconnectedClient);
+                    // Client listesini güncelleyin
+                    UpdateClientList();
+                }
             });
         }
+
 
         private void Events_ClientConnected(object? sender, ConnectionEventArgs e)
         {
             this.Invoke((MethodInvoker)delegate
             {
                 TxtInfo.Text += $"{e.IpPort} connected. {Environment.NewLine}";
-                LstClientIP.Items.Add(e.IpPort);
 
-                // Sunucu tarafında istemci bağlantısını takip etmek için
-                // 'sender' bir 'SimpleTcpServer' nesnesi yerine 'SimpleTcpClient' olmalı
-                if (sender is SimpleTcpClient client)
-                {
-                    connectedClients[e.IpPort] = client;
-                }
+                // Yeni bir istemci bağlandığında ClientInfo nesnesini oluşturun ve bağlantı bilgilerini kaydedin.
+                connectedClients.Add(new ClientInfo { IpPort = e.IpPort });
+
+                // Client listesini güncelleyin
+                UpdateClientList();
             });
         }
+
+
+        private void UpdateClientList()
+        {
+            // ListBox gibi bir kontrolü temizleyin
+            LstClientIP.Items.Clear();
+
+            // Bağlı olan tüm istemcilerin IP'lerini listeye ekleyin
+            foreach (var clientInfo in connectedClients)
+            {
+                LstClientIP.Items.Add(clientInfo.IpPort);
+            }
+        }
+
+
 
 
         private string selectedIP = null; // ListBox'ta seçili olan IP adresini tutacak değişken
@@ -100,7 +146,6 @@ namespace TCPServer
                 }
             }
         }
-
 
         private void BtnSend_Click(object sender, EventArgs e)
         {
@@ -128,6 +173,7 @@ namespace TCPServer
                 }
             }
         }
+
 
 
 

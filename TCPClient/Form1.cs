@@ -20,18 +20,40 @@ namespace TCPClient
 
         SimpleTcpClient client = new SimpleTcpClient("10.67.49.50", 7777);
         public string username;
+        public List<ClientInfo> connectedClients = new List<ClientInfo>();
+
+
+        public class ClientInfo   // İstemciye özgü diğer bilgiler
+        {
+            public string IpPort { get; set; }
+            public bool IsConnected { get; set; }
+
+        }
+
+        private bool isMessageFromMe = false; // Kendi mesajınızı gönderip göndermediğinizi takip etmek için 
+
         private void BtnSend_Click(object sender, EventArgs e)
         {
             if (client.IsConnected)
             {
                 if (!string.IsNullOrEmpty(TxtMessage.Text))
                 {
-                    client.Send(TxtMessage.Text);
+                    // Kendi mesajınızı gönderiyorsanız, göndermeyin
+                    if (!isMessageFromMe)
+                    {
+                        client.Send(TxtMessage.Text);
+                    }
+
+                    // Chat penceresine mesajı ekleyin
                     TxtInfo.Text += $"Me: {TxtMessage.Text} {Environment.NewLine}";
                     TxtMessage.Text = string.Empty;
+
+                    // Kendi mesajınızı gönderdiğinizi sıfırlayın
+                    isMessageFromMe = false;
                 }
             }
         }
+
 
         private void BtnConnect_Click(object sender, EventArgs e)
         {
@@ -62,16 +84,29 @@ namespace TCPClient
             this.Invoke((MethodInvoker)delegate
             {
                 TxtInfo.Text += $"Server disconnected. {Environment.NewLine}";
+
+                // Bağlantı kesilen istemciyi listeden kaldırın
+                var disconnectedClient = connectedClients.FirstOrDefault(client => client.IpPort == e.IpPort);
+                if (disconnectedClient != null)
+                {
+                    disconnectedClient.IsConnected = false;
+                    // Client listesini güncelleyin
+                    UpdateClientList();
+                }
             });
         }
+
 
         private void Events_DataReceived(object? sender, DataReceivedEventArgs e)
         {
             this.Invoke((MethodInvoker)delegate
             {
+                // Serverdan gelen mesajı chat penceresine ekleyin
                 TxtInfo.Text += $"Server: {Encoding.UTF8.GetString(e.Data)} {Environment.NewLine}";
-            });
 
+                // Serverdan gelen mesajı aldığınızı işaretleyin
+                isMessageFromMe = true;
+            });
         }
 
         private void Events_Connected(object? sender, ConnectionEventArgs e)
@@ -80,7 +115,31 @@ namespace TCPClient
             {
                 TxtInfo.Text += $"Server connected. {Environment.NewLine}";
 
+                // Yeni bir istemci bağlandığında ClientInfo nesnesini oluşur ve bağlantı bilgilerini kaydeder.
+                var clientInfo = new ClientInfo
+                {
+                    IpPort = e.IpPort,
+                    IsConnected = true // İstemci bağlandığında true olur
+                };
+                connectedClients.Add(clientInfo);
+
+                // Client listesini güncelleyin
+                UpdateClientList();
             });
         }
+
+        private void UpdateClientList()
+        {
+            // ListBox gibi bir kontrolü temizleyin
+            LstCllientIP.Items.Clear();
+
+            // Bağlı olan tüm istemcileri listeye ekleyin
+            foreach (var clientInfo in connectedClients)
+            {
+                LstCllientIP.Items.Add(clientInfo.IpPort + (clientInfo.IsConnected ? " (Connected)" : " (Disconnected)"));
+            }
+        }
+
+
     }
 }
