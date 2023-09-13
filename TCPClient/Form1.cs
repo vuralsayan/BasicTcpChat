@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using SuperSimpleTcp;
 using System.Net;
+using System.Net.NetworkInformation;
+
 
 namespace TCPClient
 {
@@ -21,20 +23,10 @@ namespace TCPClient
         {
             InitializeComponent();
 
-            foreach (IPAddress ipAddress in localIPs)
-            {
-                if (ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                {
-                    clientIP = ipAddress.ToString();
-                    break;
-                }
-            }
-
-             client = new SimpleTcpClient(clientIP, 9000);
+            clientIP = GetLocalIPv4(NetworkInterfaceType.Wireless80211);
+            client = new SimpleTcpClient(clientIP,9000);
         }
 
-
-        IPAddress[] localIPs = Dns.GetHostAddresses(Dns.GetHostName());
 
         //SimpleTcpClient client = new SimpleTcpClient("10.67.49.50", 7777);
         
@@ -49,6 +41,35 @@ namespace TCPClient
             public bool IsConnected { get; set; }
 
         }
+
+        // Yerel IPv4 adresini alacak fonksiyon
+        private string GetLocalIPv4(NetworkInterfaceType networkType)
+        {
+            string localIP = string.Empty;
+            NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+
+            foreach (NetworkInterface networkInterface in networkInterfaces)
+            {
+                if (networkInterface.NetworkInterfaceType == networkType && networkInterface.OperationalStatus == OperationalStatus.Up)
+                {
+                    IPInterfaceProperties ipProperties = networkInterface.GetIPProperties();
+                    foreach (UnicastIPAddressInformation ip in ipProperties.UnicastAddresses)
+                    {
+                        if (ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                        {
+                            localIP = ip.Address.ToString();
+                            break;
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(localIP))
+                    break;
+            }
+
+            return localIP;
+        }
+
 
         private bool isMessageFromMe = false; // Kendi mesajınızı gönderip göndermediğinizi takip etmek için 
 
@@ -93,6 +114,7 @@ namespace TCPClient
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            GetLocalIPv4(NetworkInterfaceType.Wireless80211);
             TxtIP.Text = client.ServerIpPort;
             client.Events.Connected += Events_Connected;
             client.Events.Disconnected += Events_Disconnected;
