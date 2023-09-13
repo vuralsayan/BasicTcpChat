@@ -16,21 +16,11 @@ namespace TCPClient
     {
         private SimpleTcpClient client;
 
-        private string clientIp = "";
         public Form1()
         {
             InitializeComponent();
 
-            foreach (IPAddress ipAddress in localIPs)
-            {
-                if (ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                {
-                    clientIP = ipAddress.ToString();
-                    break;
-                }
-            }
-
-             client = new SimpleTcpClient(clientIP, 9000);
+             client = new SimpleTcpClient("10.67.49.50", 9000);
         }
 
 

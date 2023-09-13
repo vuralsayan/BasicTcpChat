@@ -19,7 +19,7 @@ namespace TCPServer
         }
 
 
-        SimpleTcpServer server = new SimpleTcpServer("0.0.0.0", 9000);
+        SimpleTcpServer server = new SimpleTcpServer("10.67.49.50", 9000);
 
         private List<ClientInfo> connectedClients = new List<ClientInfo>();
         public string username;
