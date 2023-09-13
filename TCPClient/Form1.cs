@@ -18,18 +18,18 @@ namespace TCPClient
     {
         private SimpleTcpClient client;
 
-        private string clientIp = "";
+        public string clientIP = "";
         public Form1()
         {
             InitializeComponent();
 
             clientIP = GetLocalIPv4(NetworkInterfaceType.Wireless80211);
-            client = new SimpleTcpClient(clientIP,9000);
+            client = new SimpleTcpClient(clientIP, 9000);
         }
 
 
         //SimpleTcpClient client = new SimpleTcpClient("10.67.49.50", 7777);
-        
+
 
         public string username;
         public List<ClientInfo> connectedClients = new List<ClientInfo>();
@@ -95,13 +95,12 @@ namespace TCPClient
             }
         }
 
-        public string clientIP = "";
         private void BtnConnect_Click(object sender, EventArgs e)
         {
             try
             {
                 client.Connect();
-                
+
                 BtnSend.Enabled = true;
                 BtnConnect.Enabled = false;
             }
@@ -114,7 +113,6 @@ namespace TCPClient
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            GetLocalIPv4(NetworkInterfaceType.Wireless80211);
             TxtIP.Text = client.ServerIpPort;
             client.Events.Connected += Events_Connected;
             client.Events.Disconnected += Events_Disconnected;
