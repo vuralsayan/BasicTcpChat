@@ -8,17 +8,37 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SuperSimpleTcp;
+using System.Net;
 
 namespace TCPClient
 {
     public partial class Form1 : Form
     {
+        private SimpleTcpClient client;
+
+        private string clientIp = "";
         public Form1()
         {
             InitializeComponent();
+
+            foreach (IPAddress ipAddress in localIPs)
+            {
+                if (ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                {
+                    clientIP = ipAddress.ToString();
+                    break;
+                }
+            }
+
+             client = new SimpleTcpClient(clientIP, 9000);
         }
 
-        SimpleTcpClient client = new SimpleTcpClient("10.67.49.50", 7777);
+
+        IPAddress[] localIPs = Dns.GetHostAddresses(Dns.GetHostName());
+
+        //SimpleTcpClient client = new SimpleTcpClient("10.67.49.50", 7777);
+        
+
         public string username;
         public List<ClientInfo> connectedClients = new List<ClientInfo>();
 
@@ -54,12 +74,13 @@ namespace TCPClient
             }
         }
 
-
+        public string clientIP = "";
         private void BtnConnect_Click(object sender, EventArgs e)
         {
             try
             {
                 client.Connect();
+                
                 BtnSend.Enabled = true;
                 BtnConnect.Enabled = false;
             }

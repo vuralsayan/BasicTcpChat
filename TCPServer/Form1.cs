@@ -19,9 +19,9 @@ namespace TCPServer
         }
 
 
-        SimpleTcpServer server = new SimpleTcpServer("0.0.0.0", 7777);
-        private List<ClientInfo> connectedClients = new List<ClientInfo>();
+        SimpleTcpServer server = new SimpleTcpServer("0.0.0.0", 9000);
 
+        private List<ClientInfo> connectedClients = new List<ClientInfo>();
         public string username;
 
         public class ClientInfo  // Diğer istemci bilgileri buraya eklenebilir
