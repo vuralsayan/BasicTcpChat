@@ -20,7 +20,8 @@ namespace TCPClient
         {
             InitializeComponent();
 
-             client = new SimpleTcpClient("10.67.49.50", 9000);
+            //Stabil çalışır halde
+            client = new SimpleTcpClient("10.67.49.50", 9000);
         }
 
 

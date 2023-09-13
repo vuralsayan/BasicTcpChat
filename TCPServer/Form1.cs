@@ -18,7 +18,7 @@ namespace TCPServer
             InitializeComponent();
         }
 
-
+        //Stabil çalışır halde
         SimpleTcpServer server = new SimpleTcpServer("10.67.49.50", 9000);
 
         private List<ClientInfo> connectedClients = new List<ClientInfo>();
