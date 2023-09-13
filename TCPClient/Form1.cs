@@ -116,8 +116,6 @@ namespace TCPClient
                 // Serverdan gelen mesajı chat penceresine ekleyin
                 TxtInfo.Text += $"Server: {Encoding.UTF8.GetString(e.Data)} {Environment.NewLine}";
 
-                // Serverdan gelen mesajı aldığınızı işaretleyin
-                isMessageFromMe = true;
             });
         }
 
