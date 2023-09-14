@@ -50,7 +50,7 @@ namespace TCPServer
         {
             this.Invoke((MethodInvoker)delegate
             {
-                // Serverdan gelen mesajı chat penceresine ekleyin
+                // Serverdan gelen mesajı chat penceresine ekler
                 string message = $"{e.IpPort}: {Encoding.UTF8.GetString(e.Data)} {Environment.NewLine}";
 
                 // Kendi mesajınızı gönderdiyseniz, göndermeyin
@@ -58,14 +58,10 @@ namespace TCPServer
                 {
                     TxtInfo.Text += message;
 
-                    // Serverdan gelen mesajı tüm clientlere gönderin
+                    // Serverdan gelen mesajı tüm clientlere gönderir
                     foreach (var clientIp in connectedClients)
                     {
-                        // İlgili client'ın bağlı olduğunu doğrulayın
-                        if (clientIp != e.IpPort)
-                        {
-                            server.Send(clientIp, message);
-                        }
+                        server.Send(clientIp, message);
                     }
                 }
             });
@@ -82,30 +78,30 @@ namespace TCPServer
 
 
         private void Events_ClientDisconnected(object? sender, ConnectionEventArgs e)
-{
-    this.Invoke((MethodInvoker)delegate
-    {
-        TxtInfo.Text += $"{e.IpPort} disconnected. {Environment.NewLine}";
-
-        // Bağlantı kesilen istemciyi listeden kaldırın
-        if (connectedClients.Contains(e.IpPort))
         {
-            connectedClients.Remove(e.IpPort);
-
-            // Client listesini güncelleyin
-            UpdateClientList();
-
-            // Güncellenmiş bağlı istemci listesini tüm istemcilere gönderin
-            foreach (var client in connectedClients)
+            this.Invoke((MethodInvoker)delegate
             {
-                server.Send(client, $"ConnectedClients:{string.Join(",", connectedClients)}");
-            }
+                TxtInfo.Text += $"{e.IpPort} disconnected. {Environment.NewLine}";
 
-            // Bağlantı bilgilerini güncellemek için UpdateConnectedClientsList fonksiyonunu çağırın
-            UpdateConnectedClientsList(string.Join(",", connectedClients));
+                // Bağlantı kesilen istemciyi listeden kaldırır
+                if (connectedClients.Contains(e.IpPort))
+                {
+                    connectedClients.Remove(e.IpPort);
+
+                    // Client listesini günceller
+                    UpdateClientList();
+
+                    // Güncellenmiş bağlı istemci listesini tüm istemcilere gönderin
+                    foreach (var client in connectedClients)
+                    {
+                        server.Send(client, $"ConnectedClients:{string.Join(",", connectedClients)}");
+                    }
+
+                    // Bağlantı bilgilerini güncellemek için UpdateConnectedClientsList fonksiyonunu çağırır
+                    UpdateConnectedClientsList(string.Join(",", connectedClients));
+                }
+            });
         }
-    });
-}
 
 
         private void Events_ClientConnected(object? sender, ConnectionEventArgs e)

@@ -71,16 +71,37 @@ namespace TCPClient
                 {
                     // Sunucudan gelen bağlantı bilgilerini işle
                     string connectedClientsList = message.Replace("ConnectedClients:", "");
-                    UpdateConnectedClientsList(connectedClientsList);
-                    UpdateClientList();
+                    ReceiveConnectedClientsList(connectedClientsList);
                 }
                 else
                 {
                     // Diğer mesajları işle
-                    TxtInfo.Text += $"Server: {message} {Environment.NewLine}";
+                    TxtInfo.Text += $"{message} {Environment.NewLine}";
                 }
             });
         }
+
+
+        private void ReceiveConnectedClientsList(string connectedClientsList)
+        {
+            string[] clientIpArray = connectedClientsList.Split(',');
+
+            // Bağlı istemci IP listesini temizle ve yeni IP'leri ekle
+            connectedClients.Clear();
+
+            foreach (var clientIp in clientIpArray)
+            {
+                if (!string.IsNullOrEmpty(clientIp))
+                {
+                    // IP'yi bağlı istemcilere ekle
+                    connectedClients.Add(clientIp);
+                }
+            }
+
+            // Bağlı istemci IP listesini güncelle
+            UpdateClientList();
+        }
+
 
         private void Events_Connected(object? sender, ConnectionEventArgs e)
         {
@@ -100,15 +121,15 @@ namespace TCPClient
 
         private void UpdateConnectedClientsList(string connectedClientsList)
         {
-            // Serverdan gelen bağlantı bilgilerini işleyebilirsiniz, ancak şu anlık kullanmıyorsunuz gibi görünüyor.
+
         }
 
         private void UpdateClientList()
         {
-            // ListBox gibi bir kontrolü temizleyin
+            // ListBox ı temizle
             LstCllientIP.Items.Clear();
 
-            // Bağlı olan tüm istemcileri listeye ekleyin
+            // Bağlı olan tüm istemcileri listeye ekle
             foreach (var clientIp in connectedClients)
             {
                 LstCllientIP.Items.Add(clientIp);
