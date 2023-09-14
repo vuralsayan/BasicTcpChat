@@ -25,7 +25,7 @@ namespace TCPClient
             {
                 userName = textBox1.Text;
                 Form1 frm = new Form1();
-                frm.username = userName;
+                //frm.username = userName;
                 frm.Show();
             }
             else

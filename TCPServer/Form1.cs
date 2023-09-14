@@ -82,30 +82,30 @@ namespace TCPServer
 
 
         private void Events_ClientDisconnected(object? sender, ConnectionEventArgs e)
+{
+    this.Invoke((MethodInvoker)delegate
+    {
+        TxtInfo.Text += $"{e.IpPort} disconnected. {Environment.NewLine}";
+
+        // Bağlantı kesilen istemciyi listeden kaldırın
+        if (connectedClients.Contains(e.IpPort))
         {
-            this.Invoke((MethodInvoker)delegate
+            connectedClients.Remove(e.IpPort);
+
+            // Client listesini güncelleyin
+            UpdateClientList();
+
+            // Güncellenmiş bağlı istemci listesini tüm istemcilere gönderin
+            foreach (var client in connectedClients)
             {
-                TxtInfo.Text += $"{e.IpPort} disconnected. {Environment.NewLine}";
+                server.Send(client, $"ConnectedClients:{string.Join(",", connectedClients)}");
+            }
 
-                // Bağlantı kesilen istemciyi listeden kaldırın
-                if (connectedClients.Contains(e.IpPort))
-                {
-                    connectedClients.Remove(e.IpPort);
-
-                    // Client listesini güncelleyin
-                    UpdateClientList();
-
-                    // Güncellenmiş bağlı istemci listesini tüm istemcilere gönderin
-                    foreach (var client in connectedClients)
-                    {
-                        server.Send(client, $"ConnectedClients:{string.Join(",", connectedClients)}");
-                    }
-
-                    // Bağlantı bilgilerini güncellemek için UpdateConnectedClientsList fonksiyonunu çağırın
-                    UpdateConnectedClientsList(string.Join(",", connectedClients));
-                }
-            });
+            // Bağlantı bilgilerini güncellemek için UpdateConnectedClientsList fonksiyonunu çağırın
+            UpdateConnectedClientsList(string.Join(",", connectedClients));
         }
+    });
+}
 
 
         private void Events_ClientConnected(object? sender, ConnectionEventArgs e)
