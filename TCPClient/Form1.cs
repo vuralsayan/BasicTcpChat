@@ -89,6 +89,7 @@ namespace TCPClient
             client.Events.Disconnected += Events_Disconnected;
             client.Events.DataReceived += Events_DataReceived;
             BtnSend.Enabled = false;
+            UpdateClientList();
         }
 
         private void Events_DataReceived(object? sender, DataReceivedEventArgs e)
@@ -102,6 +103,7 @@ namespace TCPClient
                     // Sunucudan gelen bağlantı bilgilerini işle
                     string connectedClientsList = message.Replace("ConnectedClients:", "");
                     UpdateConnectedClientsList(connectedClientsList);
+                    UpdateClientList();
                 }
                 else
                 {

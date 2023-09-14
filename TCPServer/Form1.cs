@@ -100,10 +100,12 @@ namespace TCPServer
                     {
                         server.Send(client, $"ConnectedClients:{string.Join(",", connectedClients)}");
                     }
+
+                    // Bağlantı bilgilerini güncellemek için UpdateConnectedClientsList fonksiyonunu çağırın
+                    UpdateConnectedClientsList(string.Join(",", connectedClients));
                 }
             });
         }
-
 
 
         private void Events_ClientConnected(object? sender, ConnectionEventArgs e)
@@ -121,6 +123,8 @@ namespace TCPServer
                 // Güncellenmiş bağlı istemci listesini tüm istemcilere gönderin
                 server.Send(e.IpPort, $"ConnectedClients:{string.Join(",", connectedClients)}");
 
+                // Bağlantı bilgilerini güncellemek için UpdateConnectedClientsList fonksiyonunu çağırın
+                UpdateConnectedClientsList(string.Join(",", connectedClients));
             });
         }
 
@@ -136,18 +140,26 @@ namespace TCPServer
             }
         }
 
-
         private void UpdateConnectedClientsList(string connectedClientsList)
         {
-            string[] clients = connectedClientsList.Split(',');
+            string[] clientIpArray = connectedClientsList.Split(',');
 
             // Bağlı istemci IP listesini temizleyin ve yeni IP'leri ekleyin
             connectedClients.Clear();
-            connectedClients.AddRange(clients);
+
+            foreach (var clientIp in clientIpArray)
+            {
+                if (!string.IsNullOrEmpty(clientIp))
+                {
+                    // IP'yi bağlı istemcilere ekleyin
+                    connectedClients.Add(clientIp);
+                }
+            }
 
             // Bağlı istemci IP listesini güncelleyin
             UpdateClientList();
         }
+
 
 
 
