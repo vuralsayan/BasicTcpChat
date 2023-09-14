@@ -16,198 +16,134 @@ namespace TCPServer
         public Form1()
         {
             InitializeComponent();
-        }
-
-        //Stabil çalışır halde
-        SimpleTcpServer server = new SimpleTcpServer("10.67.49.50", 9000);
-
-        private List<string> connectedClients = new List<string>();
-        public string username;
-
-        public class ClientInfo  // Diğer istemci bilgileri buraya eklenebilir
-        {
-            public string IpPort { get; set; }
-        }
-
-        private void BtnStart_Click(object sender, EventArgs e)
-        {
-            server.Start();
-            TxtInfo.Text += $"Starting... {Environment.NewLine}";
-            BtnStart.Enabled = false;
-            BtnSend.Enabled = true;
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            BtnSend.Enabled = false;
-            TxtIP.Text = server.IpAddress.ToString();
             server.Events.ClientConnected += Events_ClientConnected;
             server.Events.ClientDisconnected += Events_ClientDisconnected;
             server.Events.DataReceived += Events_DataReceived;
         }
 
-        private void Events_DataReceived(object? sender, DataReceivedEventArgs e)
+        private SimpleTcpServer server = new SimpleTcpServer("10.67.49.50", 9000);
+        private List<string> connectedClients = new List<string>();
+
+
+        private void Form1_Load(object sender, EventArgs e)
         {
-            this.Invoke((MethodInvoker)delegate
-            {
-                // Serverdan gelen mesajı chat penceresine ekler
-                string message = $"{e.IpPort}: {Encoding.UTF8.GetString(e.Data)} {Environment.NewLine}";
-
-                // Kendi mesajınızı gönderdiyseniz, göndermeyin
-                if (!IsMessageFromMe(message))
-                {
-                    TxtInfo.Text += message;
-
-                    // Serverdan gelen mesajı tüm clientlere gönderir
-                    foreach (var clientIp in connectedClients)
-                    {
-                        server.Send(clientIp, message);
-                    }
-                }
-            });
+            TxtIP.Text = server.IpAddress.ToString();
         }
 
-
-
-
-        private bool IsMessageFromMe(string message)
+        private void BtnStart_Click(object sender, EventArgs e)
         {
-            // Mesajın "Me:" ile başlayıp başlamadığını kontrol ederek, kendi mesajınızı tespit edin
-            return message.StartsWith("Me:");
+            server.Start();
+            TxtInfo.Text += $"Server started... {Environment.NewLine}";
+            BtnStart.Enabled = false;
+            BtnSend.Enabled = true;
         }
 
-
-        private void Events_ClientDisconnected(object? sender, ConnectionEventArgs e)
+        private void Events_ClientConnected(object sender, ConnectionEventArgs e)
         {
-            this.Invoke((MethodInvoker)delegate
-            {
-                TxtInfo.Text += $"{e.IpPort} disconnected. {Environment.NewLine}";
-
-                // Bağlantı kesilen istemciyi listeden kaldırır
-                if (connectedClients.Contains(e.IpPort))
-                {
-                    connectedClients.Remove(e.IpPort);
-
-                    // Client listesini günceller
-                    UpdateClientList();
-
-                    // Güncellenmiş bağlı istemci listesini tüm istemcilere gönderin
-                    foreach (var client in connectedClients)
-                    {
-                        server.Send(client, $"ConnectedClients:{string.Join(",", connectedClients)}");
-                    }
-
-                    // Bağlantı bilgilerini güncellemek için UpdateConnectedClientsList fonksiyonunu çağırır
-                    UpdateConnectedClientsList(string.Join(",", connectedClients));
-                }
-            });
-        }
-
-
-        private void Events_ClientConnected(object? sender, ConnectionEventArgs e)
-        {
-            this.Invoke((MethodInvoker)delegate
+            InvokeUI(() =>
             {
                 TxtInfo.Text += $"{e.IpPort} connected. {Environment.NewLine}";
-
-                // Yeni bir istemci bağlandığında ClientInfo nesnesini oluşturun ve bağlantı bilgilerini kaydedin.
                 connectedClients.Add(e.IpPort);
-
-                // Client listesini güncelleyin
                 UpdateClientList();
-
-                // Güncellenmiş bağlı istemci listesini tüm istemcilere gönderin
-                server.Send(e.IpPort, $"ConnectedClients:{string.Join(",", connectedClients)}");
-
-                // Bağlantı bilgilerini güncellemek için UpdateConnectedClientsList fonksiyonunu çağırın
-                UpdateConnectedClientsList(string.Join(",", connectedClients));
+                SendConnectedClientsList();
             });
+        }
+
+
+
+
+        private void Events_ClientDisconnected(object sender, ConnectionEventArgs e)
+        {
+            InvokeUI(() =>
+            {
+                TxtInfo.Text += $"{e.IpPort} disconnected. {Environment.NewLine}";
+                connectedClients.Remove(e.IpPort);
+                UpdateClientList();
+                SendConnectedClientsList();
+            });
+        }
+
+
+        private void Events_DataReceived(object sender, DataReceivedEventArgs e)
+        {
+            InvokeUI(() =>
+            {
+                string message = $"{e.IpPort}: {Encoding.UTF8.GetString(e.Data)} {Environment.NewLine}";
+                TxtInfo.Text += message;
+                SendToAllClients(message, e.IpPort);
+            });
+        }
+
+
+        private void SendToAllClients(string message, string senderIp)
+        {
+            foreach (var clientIp in connectedClients)
+            {
+                if (clientIp != senderIp)
+                {
+                    server.Send(clientIp, message);
+                }
+            }
+        }
+
+        private void SendConnectedClientsList()
+        {
+            string clientListMessage = $"ConnectedClients:{string.Join(",", connectedClients)}";
+            foreach (var clientIp in connectedClients)
+            {
+                server.Send(clientIp, clientListMessage);
+            }
         }
 
         private void UpdateClientList()
         {
-            // ListBox gibi bir kontrolü temizleyin
-            LstClientIP.Items.Clear();
+            LstClientIP.DataSource = null;
+            LstClientIP.DataSource = connectedClients;
 
-            // Bağlı olan tüm istemcilerin IP'lerini listeye ekleyin
-            foreach (var clientIp in connectedClients)
-            {
-                LstClientIP.Items.Add(clientIp);
-            }
+
         }
 
-        private void UpdateConnectedClientsList(string connectedClientsList)
-        {
-            string[] clientIpArray = connectedClientsList.Split(',');
-
-            // Bağlı istemci IP listesini temizleyin ve yeni IP'leri ekleyin
-            connectedClients.Clear();
-
-            foreach (var clientIp in clientIpArray)
-            {
-                if (!string.IsNullOrEmpty(clientIp))
-                {
-                    // IP'yi bağlı istemcilere ekleyin
-                    connectedClients.Add(clientIp);
-                }
-            }
-
-            // Bağlı istemci IP listesini güncelleyin
-            UpdateClientList();
-        }
-
-
-
-
-
-        private string selectedIP = null; // ListBox'ta seçili olan IP adresini tutacak değişken
-
-        private void LstClientIP_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (LstClientIP.SelectedItem != null)
-            {
-                string currentSelectedIP = LstClientIP.SelectedItem.ToString();
-
-                if (currentSelectedIP == selectedIP)
-                {
-                    // Seçili IP'yi tekrar tıkladığınızda seçimi kaldır
-                    LstClientIP.ClearSelected();
-                    selectedIP = null;
-                }
-                else
-                {
-                    selectedIP = currentSelectedIP;
-                }
-            }
-        }
 
         private void BtnSend_Click(object sender, EventArgs e)
         {
             if (server.IsListening)
             {
-                if (!String.IsNullOrEmpty(TxtMessage.Text))
+                if (!string.IsNullOrEmpty(TxtMessage.Text))
                 {
                     if (selectedIP == null)
                     {
-                        // Tüm clientlere mesaj gönder
-                        foreach (var item in LstClientIP.Items)
-                        {
-                            server.Send(item.ToString(), TxtMessage.Text);
-                        }
-                        TxtInfo.Text += $"Server (to all clients): {TxtMessage.Text} {Environment.NewLine}";
-                        TxtMessage.Text = String.Empty;
+                        SendToAllClients($"Server (to all clients): {TxtMessage.Text} {Environment.NewLine}", "");
                     }
                     else
                     {
-                        // Sadece seçili olan IP adresine mesaj gönder
-                        server.Send(selectedIP, TxtMessage.Text);
-                        TxtInfo.Text += $"Server (to {selectedIP}): {TxtMessage.Text} {Environment.NewLine}";
-                        TxtMessage.Text = String.Empty;
+                        server.Send(selectedIP, $"Server (to {selectedIP}): {TxtMessage.Text} {Environment.NewLine}");
                     }
+                    // Sunucu chat penceresine de gönderilen mesajı yaz
+                    TxtInfo.Text += $"Server: {TxtMessage.Text} {Environment.NewLine}";
+                    TxtMessage.Clear();
                 }
             }
         }
 
+        private void InvokeUI(Action action)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(action);
+            }
+            else
+            {
+                action();
+            }
+        }
+
+
+        private string selectedIP = null;
+
+        private void LstClientIP_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            selectedIP = LstClientIP.SelectedItem as string;
+        }
 
 
 
