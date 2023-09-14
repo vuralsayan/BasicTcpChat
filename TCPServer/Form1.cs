@@ -21,7 +21,7 @@ namespace TCPServer
         //Stabil çalışır halde
         SimpleTcpServer server = new SimpleTcpServer("10.67.49.50", 9000);
 
-        private List<ClientInfo> connectedClients = new List<ClientInfo>();
+        private List<string> connectedClients = new List<string>();
         public string username;
 
         public class ClientInfo  // Diğer istemci bilgileri buraya eklenebilir
@@ -59,17 +59,20 @@ namespace TCPServer
                     TxtInfo.Text += message;
 
                     // Serverdan gelen mesajı tüm clientlere gönderin
-                    foreach (var client in connectedClients)
+                    foreach (var clientIp in connectedClients)
                     {
                         // İlgili client'ın bağlı olduğunu doğrulayın
-                        if (client.IpPort != e.IpPort)
+                        if (clientIp != e.IpPort)
                         {
-                            server.Send(client.IpPort, message);
+                            server.Send(clientIp, message);
                         }
                     }
                 }
             });
         }
+
+
+
 
         private bool IsMessageFromMe(string message)
         {
@@ -85,15 +88,22 @@ namespace TCPServer
                 TxtInfo.Text += $"{e.IpPort} disconnected. {Environment.NewLine}";
 
                 // Bağlantı kesilen istemciyi listeden kaldırın
-                var disconnectedClient = connectedClients.FirstOrDefault(client => client.IpPort == e.IpPort);
-                if (disconnectedClient != null)
+                if (connectedClients.Contains(e.IpPort))
                 {
-                    connectedClients.Remove(disconnectedClient);
+                    connectedClients.Remove(e.IpPort);
+
                     // Client listesini güncelleyin
                     UpdateClientList();
+
+                    // Güncellenmiş bağlı istemci listesini tüm istemcilere gönderin
+                    foreach (var client in connectedClients)
+                    {
+                        server.Send(client, $"ConnectedClients:{string.Join(",", connectedClients)}");
+                    }
                 }
             });
         }
+
 
 
         private void Events_ClientConnected(object? sender, ConnectionEventArgs e)
@@ -103,13 +113,16 @@ namespace TCPServer
                 TxtInfo.Text += $"{e.IpPort} connected. {Environment.NewLine}";
 
                 // Yeni bir istemci bağlandığında ClientInfo nesnesini oluşturun ve bağlantı bilgilerini kaydedin.
-                connectedClients.Add(new ClientInfo { IpPort = e.IpPort });
+                connectedClients.Add(e.IpPort);
 
                 // Client listesini güncelleyin
                 UpdateClientList();
+
+                // Güncellenmiş bağlı istemci listesini tüm istemcilere gönderin
+                server.Send(e.IpPort, $"ConnectedClients:{string.Join(",", connectedClients)}");
+
             });
         }
-
 
         private void UpdateClientList()
         {
@@ -117,10 +130,23 @@ namespace TCPServer
             LstClientIP.Items.Clear();
 
             // Bağlı olan tüm istemcilerin IP'lerini listeye ekleyin
-            foreach (var clientInfo in connectedClients)
+            foreach (var clientIp in connectedClients)
             {
-                LstClientIP.Items.Add(clientInfo.IpPort);
+                LstClientIP.Items.Add(clientIp);
             }
+        }
+
+
+        private void UpdateConnectedClientsList(string connectedClientsList)
+        {
+            string[] clients = connectedClientsList.Split(',');
+
+            // Bağlı istemci IP listesini temizleyin ve yeni IP'leri ekleyin
+            connectedClients.Clear();
+            connectedClients.AddRange(clients);
+
+            // Bağlı istemci IP listesini güncelleyin
+            UpdateClientList();
         }
 
 

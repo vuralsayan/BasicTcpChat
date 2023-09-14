@@ -28,10 +28,10 @@ namespace TCPClient
         IPAddress[] localIPs = Dns.GetHostAddresses(Dns.GetHostName());
 
         //SimpleTcpClient client = new SimpleTcpClient("10.67.49.50", 7777);
-        
+
 
         public string username;
-        public List<ClientInfo> connectedClients = new List<ClientInfo>();
+        public List<ClientInfo> connectedClientIPs = new List<ClientInfo>();
 
 
         public class ClientInfo   // İstemciye özgü diğer bilgiler
@@ -71,7 +71,7 @@ namespace TCPClient
             try
             {
                 client.Connect();
-                
+
                 BtnSend.Enabled = true;
                 BtnConnect.Enabled = false;
             }
@@ -91,31 +91,23 @@ namespace TCPClient
             BtnSend.Enabled = false;
         }
 
-        private void Events_Disconnected(object? sender, ConnectionEventArgs e)
-        {
-            this.Invoke((MethodInvoker)delegate
-            {
-                TxtInfo.Text += $"Server disconnected. {Environment.NewLine}";
-
-                // Bağlantı kesilen istemciyi listeden kaldırın
-                var disconnectedClient = connectedClients.FirstOrDefault(client => client.IpPort == e.IpPort);
-                if (disconnectedClient != null)
-                {
-                    disconnectedClient.IsConnected = false;
-                    // Client listesini güncelleyin
-                    UpdateClientList();
-                }
-            });
-        }
-
-
         private void Events_DataReceived(object? sender, DataReceivedEventArgs e)
         {
             this.Invoke((MethodInvoker)delegate
             {
-                // Serverdan gelen mesajı chat penceresine ekleyin
-                TxtInfo.Text += $"Server: {Encoding.UTF8.GetString(e.Data)} {Environment.NewLine}";
+                string message = Encoding.UTF8.GetString(e.Data);
 
+                if (message.StartsWith("ConnectedClients:"))
+                {
+                    // Sunucudan gelen bağlantı bilgilerini işle
+                    string connectedClientsList = message.Replace("ConnectedClients:", "");
+                    UpdateConnectedClientsList(connectedClientsList);
+                }
+                else
+                {
+                    // Diğer mesajları işle
+                    TxtInfo.Text += $"Server: {message} {Environment.NewLine}";
+                }
             });
         }
 
@@ -131,10 +123,44 @@ namespace TCPClient
                     IpPort = e.IpPort,
                     IsConnected = true // İstemci bağlandığında true olur
                 };
-                connectedClients.Add(clientInfo);
+                connectedClientIPs.Add(clientInfo);
 
                 // Client listesini güncelleyin
                 UpdateClientList();
+            });
+        }
+        private void UpdateConnectedClientsList(string connectedClientsList)
+        {
+            string[] connectedClients = connectedClientsList.Split(',');
+
+            // Listeyi temizle
+            connectedClientIPs.Clear();
+
+            foreach (var connectedClient in connectedClients)
+            {
+                if (!string.IsNullOrEmpty(connectedClient))
+                {
+                    connectedClientIPs.Add(new ClientInfo { IpPort = connectedClient });
+                }
+            }
+
+        }
+
+
+        private void Events_Disconnected(object? sender, ConnectionEventArgs e)
+        {
+            this.Invoke((MethodInvoker)delegate
+            {
+                TxtInfo.Text += $"Server disconnected. {Environment.NewLine}";
+
+                // Bağlantı kesilen istemciyi listeden kaldırın
+                var disconnectedClient = connectedClientIPs.FirstOrDefault(client => client.IpPort == e.IpPort);
+                if (disconnectedClient != null)
+                {
+                    disconnectedClient.IsConnected = false;
+                    // Client listesini güncelleyin
+                    UpdateClientList();
+                }
             });
         }
 
@@ -144,7 +170,7 @@ namespace TCPClient
             LstCllientIP.Items.Clear();
 
             // Bağlı olan tüm istemcileri listeye ekleyin
-            foreach (var clientInfo in connectedClients)
+            foreach (var clientInfo in connectedClientIPs)
             {
                 LstCllientIP.Items.Add(clientInfo.IpPort + (clientInfo.IsConnected ? " (Connected)" : " (Disconnected)"));
             }
