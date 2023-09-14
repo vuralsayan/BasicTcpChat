@@ -76,7 +76,7 @@ namespace TCPClient
                 else
                 {
                     // Diğer mesajları işle
-                    TxtInfo.Text += $"{message} {Environment.NewLine}";
+                    TxtInfo.Text += $"{message}";
                 }
             });
         }

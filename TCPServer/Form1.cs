@@ -68,8 +68,8 @@ namespace TCPServer
         {
             InvokeUI(() =>
             {
-                string message = $"{e.IpPort}: {Encoding.UTF8.GetString(e.Data)} {Environment.NewLine}";
-                TxtInfo.Text += message;
+                string message = $"{e.IpPort}: {Encoding.UTF8.GetString(e.Data)}";
+                TxtInfo.Text += message + Environment.NewLine;
                 SendToAllClients(message, e.IpPort);
             });
         }
@@ -83,6 +83,7 @@ namespace TCPServer
                 {
                     server.Send(clientIp, message);
                 }
+
             }
         }
 
@@ -110,14 +111,7 @@ namespace TCPServer
             {
                 if (!string.IsNullOrEmpty(TxtMessage.Text))
                 {
-                    if (selectedIP == null)
-                    {
-                        SendToAllClients($"Server (to all clients): {TxtMessage.Text} {Environment.NewLine}", "");
-                    }
-                    else
-                    {
-                        server.Send(selectedIP, $"Server (to {selectedIP}): {TxtMessage.Text} {Environment.NewLine}");
-                    }
+                    SendToAllClients($"Server: {TxtMessage.Text} {Environment.NewLine}", "");
                     // Sunucu chat penceresine de gönderilen mesajı yaz
                     TxtInfo.Text += $"Server: {TxtMessage.Text} {Environment.NewLine}";
                     TxtMessage.Clear();
