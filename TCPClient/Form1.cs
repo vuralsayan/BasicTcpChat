@@ -26,6 +26,7 @@ namespace TCPClient
             client.Events.Connected += Events_Connected;
             client.Events.Disconnected += Events_Disconnected;
             client.Events.DataReceived += Events_DataReceived;
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -41,7 +42,7 @@ namespace TCPClient
                 if (!string.IsNullOrEmpty(TxtMessage.Text))
                 {
                     client.Send(TxtMessage.Text);
-                    TxtInfo.Text += $"Me: {TxtMessage.Text} {Environment.NewLine}";
+                    TxtInfo.Text += $"{Environment.NewLine}Me: {TxtMessage.Text} ";
                     TxtMessage.Text = string.Empty;
                 }
             }
@@ -78,13 +79,20 @@ namespace TCPClient
                 }
                 else
                 {
-                    // Diğer mesajları işle
-                    TxtInfo.Text += $"{message}";
+                    // Diğer mesajları işle ve her mesajın sonuna yeni satır ekleyin
+                    string trimmedMessage = message.Trim(); // Satır boşlukları kaldır
+                    if (!string.IsNullOrEmpty(TxtInfo.Text))
+                    {
+                        TxtInfo.Text += Environment.NewLine;
+                    }
+                    TxtInfo.Text += $"{trimmedMessage}";
                 }
                 ScrollToBottom(TxtInfo);
                 TxtMessage.Focus();
             });
         }
+
+
 
 
         private void ReceiveConnectedClientsList(string connectedClientsList)
