@@ -133,6 +133,7 @@
             // 
             // Form1
             // 
+            AcceptButton = BtnSend;
             AutoScaleDimensions = new System.Drawing.SizeF(12F, 30F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(1111, 505);

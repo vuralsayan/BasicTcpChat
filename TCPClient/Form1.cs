@@ -45,6 +45,9 @@ namespace TCPClient
                     TxtMessage.Text = string.Empty;
                 }
             }
+
+            ScrollToBottom(TxtInfo);
+            TxtMessage.Focus();
         }
 
         private void BtnConnect_Click(object sender, EventArgs e)
@@ -78,6 +81,8 @@ namespace TCPClient
                     // Diğer mesajları işle
                     TxtInfo.Text += $"{message}";
                 }
+                ScrollToBottom(TxtInfo);
+                TxtMessage.Focus();
             });
         }
 
@@ -108,7 +113,10 @@ namespace TCPClient
             this.Invoke((MethodInvoker)delegate
             {
                 TxtInfo.Text += $"Server connected. {Environment.NewLine}";
+                ScrollToBottom(TxtInfo);
+                TxtMessage.Focus();
             });
+
         }
 
         private void Events_Disconnected(object? sender, ConnectionEventArgs e)
@@ -116,6 +124,8 @@ namespace TCPClient
             this.Invoke((MethodInvoker)delegate
             {
                 TxtInfo.Text += $"Server disconnected. {Environment.NewLine}";
+                ScrollToBottom(TxtInfo);
+                TxtMessage.Focus();
             });
         }
 
@@ -132,5 +142,10 @@ namespace TCPClient
             }
         }
 
+        private void ScrollToBottom(TextBox textBox)
+        {
+            textBox.Select(textBox.TextLength, 0);
+            textBox.ScrollToCaret();
+        }
     }
 }

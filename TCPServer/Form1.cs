@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,6 +37,8 @@ namespace TCPServer
             TxtInfo.Text += $"Server started... {Environment.NewLine}";
             BtnStart.Enabled = false;
             BtnSend.Enabled = true;
+            ScrollToBottom(TxtInfo);
+            TxtMessage.Focus();
         }
 
         private void Events_ClientConnected(object sender, ConnectionEventArgs e)
@@ -46,6 +49,8 @@ namespace TCPServer
                 connectedClients.Add(e.IpPort);
                 UpdateClientList();
                 SendConnectedClientsList();
+                ScrollToBottom(TxtInfo);
+                TxtMessage.Focus();
             });
         }
 
@@ -58,6 +63,8 @@ namespace TCPServer
                 connectedClients.Remove(e.IpPort);
                 UpdateClientList();
                 SendConnectedClientsList();
+                ScrollToBottom(TxtInfo);
+                TxtMessage.Focus();
             });
         }
 
@@ -69,6 +76,8 @@ namespace TCPServer
                 string message = $"{e.IpPort}: {Encoding.UTF8.GetString(e.Data)}";
                 TxtInfo.Text += message + Environment.NewLine;
                 SendToAllClients(message, e.IpPort);
+                ScrollToBottom(TxtInfo);
+                TxtMessage.Focus();
             });
         }
 
@@ -113,6 +122,9 @@ namespace TCPServer
                     TxtMessage.Clear();
                 }
             }
+
+            ScrollToBottom(TxtInfo);
+            TxtMessage.Focus();
         }
 
         private void InvokeUI(Action action)
@@ -133,6 +145,13 @@ namespace TCPServer
         private void LstClientIP_SelectedIndexChanged(object sender, EventArgs e)
         {
             selectedIP = LstClientIP.SelectedItem as string;
+        }
+
+
+        private void ScrollToBottom(TextBox textBox)
+        {
+            textBox.Select(textBox.TextLength, 0);
+            textBox.ScrollToCaret();
         }
 
 
