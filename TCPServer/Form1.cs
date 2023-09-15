@@ -50,8 +50,6 @@ namespace TCPServer
         }
 
 
-
-
         private void Events_ClientDisconnected(object sender, ConnectionEventArgs e)
         {
             InvokeUI(() =>
@@ -100,8 +98,6 @@ namespace TCPServer
         {
             LstClientIP.DataSource = null;
             LstClientIP.DataSource = connectedClients;
-
-
         }
 
 

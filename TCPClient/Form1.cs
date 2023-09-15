@@ -119,10 +119,6 @@ namespace TCPClient
             });
         }
 
-        private void UpdateConnectedClientsList(string connectedClientsList)
-        {
-
-        }
 
         private void UpdateClientList()
         {
@@ -135,13 +131,6 @@ namespace TCPClient
                 LstCllientIP.Items.Add(clientIp);
             }
         }
-
-
-
-
-
-
-
 
     }
 }
