@@ -24,7 +24,7 @@ namespace TCPClient
             if (textBox1.Text != string.Empty)
             {
                 userName = textBox1.Text;
-                Form1 frm = new Form1();
+                Client frm = new Client();
                 //frm.username = userName;
                 frm.Show();
             }

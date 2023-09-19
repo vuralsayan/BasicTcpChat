@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Form1.cs" />
+    <Compile Update="Server.cs" />
   </ItemGroup>
 
 </Project>
