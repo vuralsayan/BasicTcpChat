@@ -20,7 +20,7 @@
 
 ## Açıklama
 
-**BasicTcpChat**, TCP/IP tabanlar Server ve Client arasında mesajlaşma uygulamasıdır. Multiple client özelliği mevcuttur.
+**BasicTcpChat**, TCP/IP tabanlı Server ve Client arasında mesajlaşma uygulamasıdır. Multiple client özelliği mevcuttur.
 
 
 ### Gereksinimler
