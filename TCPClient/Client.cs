@@ -22,7 +22,7 @@ namespace TCPClient
         public Client()
         {
             InitializeComponent();
-            client = new SimpleTcpClient("10.67.49.50", 9000);
+            client = new SimpleTcpClient("Local IP", 9000);
             client.Events.Connected += Events_Connected;
             client.Events.Disconnected += Events_Disconnected;
             client.Events.DataReceived += Events_DataReceived;

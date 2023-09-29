@@ -22,7 +22,7 @@ namespace TCPServer
             server.Events.DataReceived += Events_DataReceived;
         }
 
-        private SimpleTcpServer server = new SimpleTcpServer("10.67.49.50", 9000);
+        private SimpleTcpServer server = new SimpleTcpServer("Local IP", 9000);
         private List<string> connectedClients = new List<string>();
 
 
